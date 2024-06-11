@@ -78,11 +78,38 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_no_class(self):
         """Test that all returns all rows when no class is passed"""
+        self.assertIs(type(self.storage.all()), dict)
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_new(self):
         """test that new adds an object to the database"""
+        obj = User(id="12345", email="test@example.com", password="password")
+        self.storage.new(obj)
+        self.assertIn("User.12345", self.storage.all().keys())
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+        obj = User(id="12345", email="example@email.com", password="password")
+        self.storage.new(obj)
+        self.staorage.save()
+        self.assertIn("User.12345", self.storage.all().keys())
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_get(self):
+        """Test that retrieves an object based on class and id"""
+        obj = User(id="12345", email="example@email.com", password="password")
+        self.storage.new(obj)
+        self.storage.save()
+        retrieve_obj = self.storage.get(User, "12345")
+        self.assertEqual(retrieve_obj.id, "12345")
+
+    @unittest.skipIf(models.storage_t != 'db', "Not testing db storage")
+    def test_count(sel):
+        """Test that count and returns the number of objects in storage"""
+        initial_count = self.storage.count()
+        obj = User(id="12345", email="example@email.com", password="password")
+        self.storage.new(obj)
+        self.storage.save()
+        self.assertEqual(self.storage.count(), initial_count + 1)
+        self.assertEqual(self.storage.count(User), 1)
